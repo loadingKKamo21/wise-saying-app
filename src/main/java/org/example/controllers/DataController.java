@@ -18,7 +18,7 @@ public class DataController {
     private static final BufferedWriter BW = new BufferedWriter(new OutputStreamWriter(System.out));
     
     private static Map<Integer, Data> map = new HashMap<>();
-    private static int                ID = SERVICE.loadIdByTxtFile();
+    private static int                id  = SERVICE.loadIdByTxtFile();
     
     public void makeDirectory() {
         SERVICE.makeDirectory();
@@ -41,10 +41,10 @@ public class DataController {
             stringEmptyCheck(author);
         } while (author.trim().isEmpty());
         
-        Data data = Data.of(ID, author, content);
-        map.put(ID, data);
+        Data data = Data.of(id, author, content);
+        map.put(id, data);
         SERVICE.saveDataToJson(data);
-        BW.write(ID++ + "번 명언이 등록되었습니다.");
+        BW.write(id++ + "번 명언이 등록되었습니다.");
         BW.newLine();
         
         BW.flush();
@@ -118,6 +118,7 @@ public class DataController {
         if (map.isEmpty()) {
             BW.write("데이터가 존재하지 않아 빌드할 수 없습니다.");
             BW.newLine();
+            BW.flush();
             return;
         }
         
@@ -129,7 +130,7 @@ public class DataController {
     }
     
     public void saveLastId() {
-        SERVICE.saveIdToTxt(ID);
+        SERVICE.saveIdToTxt(id);
     }
     
     public void loadAllData() {
