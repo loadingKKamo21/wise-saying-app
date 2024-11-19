@@ -2,22 +2,22 @@ package org.example.model;
 
 public class Data {
     
-    final int    idx;
+    final int    id;
     final String author;
     final String content;
     
-    private Data(int idx, String author, String content) {
-        this.idx = idx;
+    private Data(int id, String author, String content) {
+        this.id = id;
         this.author = author;
         this.content = content;
     }
     
-    public static Data of(final int idx, final String author, final String content) {
-        return new Data(idx, author, content);
+    public static Data of(final int id, final String author, final String content) {
+        return new Data(id, author, content);
     }
     
-    public int getIdx() {
-        return idx;
+    public int getId() {
+        return id;
     }
     
     public String getAuthor() {
