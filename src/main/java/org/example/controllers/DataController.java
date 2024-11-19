@@ -17,8 +17,8 @@ public class DataController {
     private static final BufferedReader BR = new BufferedReader(new InputStreamReader(System.in));
     private static final BufferedWriter BW = new BufferedWriter(new OutputStreamWriter(System.out));
     
-    private static Map<Integer, Data> map = new HashMap<>();
-    private static int                id  = SERVICE.loadIdByTxtFile();
+    private Map<Integer, Data> map = new HashMap<>();
+    private int                id  = SERVICE.loadIdByTxtFile();
     
     public void makeDirectory() {
         SERVICE.makeDirectory();
