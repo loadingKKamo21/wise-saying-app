@@ -112,8 +112,9 @@ public class WiseSayingTool {
                 }
             } while (author.trim().isEmpty());
             
+            data = Data.of(idx, author, content);
+            map.put(idx, data);
             saveObjectToJson(idx, data, storeDir);
-            map.put(idx, Data.of(idx, author, content));
         } else {
             bw.write(idx + "번 명언은 존재하지 않습니다.");
             bw.newLine();
@@ -122,6 +123,12 @@ public class WiseSayingTool {
     
     public static void build(final BufferedWriter bw, final Map<Integer, Data> map, final String storeDir)
     throws IOException {
+        if (map.isEmpty()) {
+            bw.write("데이터가 존재하지 않아 빌드할 수 없습니다.");
+            bw.newLine();
+            return;
+        }
+        
         int[] idxArr = map.keySet().stream().sorted().mapToInt(Integer::intValue).toArray();
         
         StringBuilder sb = new StringBuilder();

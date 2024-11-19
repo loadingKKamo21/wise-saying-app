@@ -37,11 +37,21 @@ public class Main {
                 IDX = register(bw, br, IDX, map, STORE_DIR);
             else if ("목록".equals(command))
                 listPrint(bw, map);
-            else if (command.startsWith("삭제?id="))
-                delete(bw, Integer.parseInt(command.substring(command.indexOf("=") + 1)), map, STORE_DIR);
-            else if (command.startsWith("수정?id="))
-                edit(bw, br, Integer.parseInt(command.substring(command.indexOf("=") + 1)), map, STORE_DIR);
-            else if ("빌드".equals(command))
+            else if (command.startsWith("삭제?id=")) {
+                String str = command.substring(command.indexOf("=") + 1);
+                if (!str.matches("\\d+")) {
+                    bw.write("'" + str + "'는(은) 숫자가 아닙니다.");
+                    bw.newLine();
+                } else
+                    delete(bw, Integer.parseInt(str), map, STORE_DIR);
+            } else if (command.startsWith("수정?id=")) {
+                String str = command.substring(command.indexOf("=") + 1);
+                if (!str.matches("\\d+")) {
+                    bw.write("'" + str + "'는(은) 숫자가 아닙니다.");
+                    bw.newLine();
+                } else
+                    edit(bw, br, Integer.parseInt(str), map, STORE_DIR);
+            } else if ("빌드".equals(command))
                 build(bw, map, STORE_DIR);
             else if ("종료".equals(command))
                 break;
