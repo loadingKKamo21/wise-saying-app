@@ -93,9 +93,7 @@ public class WiseSayingController {
     }
 
     public void deleteWiseSaying(final int id) throws IOException {
-        Map<Integer, WiseSaying> map = service.loadAll();
-
-        if (map.containsKey(id)) {
+        if (service.loadById(id) != null) {
             service.deleteWiseSaying(id);
             bw.write(id + "번 명언이 삭제되었습니다.");
             bw.newLine();
@@ -108,11 +106,9 @@ public class WiseSayingController {
     }
 
     public void editWiseSaying(final int id) throws IOException {
-        Map<Integer, WiseSaying> map = service.loadAll();
+        WiseSaying wiseSaying = service.loadById(id);
 
-        if (map.containsKey(id)) {
-            WiseSaying wiseSaying = map.get(id);
-
+        if (wiseSaying != null) {
             bw.write("명언(기존): " + wiseSaying.getContent());
             bw.newLine();
 

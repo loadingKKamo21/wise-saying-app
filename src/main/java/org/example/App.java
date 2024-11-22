@@ -58,7 +58,7 @@ public class App {
             } else if (cmd.startsWith("삭제?id=")) {
                 String str = cmd.substring(cmd.indexOf("=") + 1);
                 if (!str.matches("\\d+")) {
-                    bw.write("'" + str + "'는(은) 숫자가 아닙니다.");
+                    bw.write("'" + str + "'는(은) ID가 아닙니다.");
                     bw.newLine();
                     bw.flush();
                 } else {
@@ -67,7 +67,7 @@ public class App {
             } else if (cmd.startsWith("수정?id=")) {
                 String str = cmd.substring(cmd.indexOf("=") + 1);
                 if (!str.matches("\\d+")) {
-                    bw.write("'" + str + "'는(은) 숫자가 아닙니다.");
+                    bw.write("'" + str + "'는(은) ID가 아닙니다.");
                     bw.newLine();
                     bw.flush();
                 } else {

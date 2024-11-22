@@ -33,14 +33,21 @@ public class WiseSayingServiceImpl implements WiseSayingService {
     }
 
     @Override
-    public int updateWiseSaying(final int id, final WiseSayingReq dto) throws IOException {
-        return repository.update(id, dto).getId();
+    public boolean updateWiseSaying(final int id, final WiseSayingReq dto) throws IOException {
+        WiseSaying updWiseSaying = repository.update(id, dto);
+        return dto.getAuthor().equals(updWiseSaying.getAuthor())
+                && dto.getContent().equals(updWiseSaying.getContent());
     }
 
     @Override
     public void buildData() throws IOException {
         String buildData = WiseSayingHandler.buildData(repository.loadAll());
         repository.buildData(buildData);
+    }
+
+    @Override
+    public WiseSaying loadById(final int id) throws IOException {
+        return repository.loadById(id);
     }
 
     @Override
@@ -59,8 +66,8 @@ public class WiseSayingServiceImpl implements WiseSayingService {
     }
 
     @Override
-    public void deleteWiseSaying(final int id) throws IOException {
-        repository.deleteJson(id);
+    public boolean deleteWiseSaying(final int id) throws IOException {
+        return repository.deleteJson(id);
     }
 
     @Override

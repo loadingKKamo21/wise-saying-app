@@ -105,6 +105,16 @@ public class WiseSayingRepositoryImpl implements WiseSayingRepository {
     }
 
     @Override
+    public WiseSaying loadById(final int id) throws IOException {
+        String filePath = storeDir + File.separator + id + JSON;
+        if (!new File(filePath).exists()) {
+            return null;
+        }
+
+        return loadFromJson(filePath);
+    }
+
+    @Override
     public Map<Integer, WiseSaying> loadAll() throws IOException {
         try (Stream<Path> paths = Files.walk(Paths.get(storeDir))) {
             paths.filter(Files::isRegularFile)
@@ -148,7 +158,7 @@ public class WiseSayingRepositoryImpl implements WiseSayingRepository {
     }
 
     @Override
-    public void deleteJson(final int id) throws IOException {
+    public boolean deleteJson(final int id) throws IOException {
         if (id < 0 || !map.containsKey(id)) {
             throw new GlobalException(INVALID_ID);
         }
@@ -156,6 +166,8 @@ public class WiseSayingRepositoryImpl implements WiseSayingRepository {
         Path path = Paths.get(storeDir + File.separator + id + JSON);
         Files.delete(path);
         map.remove(id);
+
+        return !map.containsKey(id);
     }
 
 }

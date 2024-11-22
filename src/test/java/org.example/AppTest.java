@@ -57,7 +57,7 @@ class AppTest {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     String fileName = file.getFileName().toString();
-                    if (fileName.endsWith(".json") || fileName.endsWith(".txt")) {
+                    if (fileName.endsWith(JSON_EXT) || fileName.endsWith(TXT_EXT)) {
                         Files.delete(file);
                     }
                     return FileVisitResult.CONTINUE;
@@ -264,7 +264,7 @@ class AppTest {
 
         assertThat(output).contains("'등록?'는(은) 올바르지 않은 명령입니다.")
                 .contains("'목록?keywordType=id'는(은) 올바르지 않은 명령입니다.")
-                .contains("'-2'는(은) 숫자가 아닙니다.")
+                .contains("'-2'는(은) ID가 아닙니다.")
                 .contains("'수정?author=작가3'는(은) 올바르지 않은 명령입니다.")
                 .contains("'빌드!'는(은) 올바르지 않은 명령입니다.");
     }

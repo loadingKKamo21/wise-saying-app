@@ -12,9 +12,11 @@ public interface WiseSayingService {
 
     int saveWiseSaying(WiseSayingReq dto) throws IOException;
 
-    int updateWiseSaying(int id, WiseSayingReq dto) throws IOException;
+    boolean updateWiseSaying(int id, WiseSayingReq dto) throws IOException;
 
     void buildData() throws IOException;
+
+    WiseSaying loadById(int id) throws IOException;
 
     Map<Integer, WiseSaying> loadAll() throws IOException;
 
@@ -22,7 +24,7 @@ public interface WiseSayingService {
 
     int loadLastId() throws IOException;
 
-    void deleteWiseSaying(int id) throws IOException;
+    boolean deleteWiseSaying(int id) throws IOException;
 
     WiseSayingPaging getPaging(String keywordType, String keyword, int page) throws IOException;
 
