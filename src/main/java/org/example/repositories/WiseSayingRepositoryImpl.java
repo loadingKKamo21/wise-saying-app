@@ -1,5 +1,9 @@
 package org.example.repositories;
 
+import static org.example.error.ex.ErrorCode.INVALID_ID;
+import static org.example.repositories.Ext.JSON;
+import static org.example.repositories.Ext.TXT;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,8 +13,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.example.dto.WiseSayingReq;
 import org.example.entities.WiseSaying;
 import org.example.error.ex.ErrorCode;
 import org.example.error.ex.GlobalException;
@@ -18,30 +24,64 @@ import org.example.utils.WiseSayingHandler;
 
 public class WiseSayingRepositoryImpl implements WiseSayingRepository {
 
-    private static final String STORE_DIR = "./db/wiseSaying";
     private static final String DATA = "data";
     private static final String LAST_ID = "lastId";
 
+    private final Map<Integer, WiseSaying> map;
+    private final String storeDir;
+    private int currentId;
+
+    public WiseSayingRepositoryImpl(final String storeDir) {
+        this.storeDir = storeDir;
+        this.map = new LinkedHashMap<>();
+        this.currentId = loadLastId();
+    }
+
     @Override
     public void makeDirectory() {
-        File dir = new File(STORE_DIR);
+        File dir = new File(storeDir);
         if (!dir.exists()) {
             dir.mkdirs();
         }
     }
 
     @Override
-    public void saveToJson(final WiseSaying param) throws IOException {
-        String json = WiseSayingHandler.toJson(param);
-        String filePath = STORE_DIR + File.separator + param.getId() + Ext.JSON;
+    public WiseSaying saveToJson(final WiseSayingReq param) throws IOException {
+        WiseSaying wiseSaying = WiseSaying.of(currentId, param.getAuthor(), param.getContent());
+        map.put(currentId++, wiseSaying);
+
+        String json = WiseSayingHandler.toJson(wiseSaying);
+        String filePath = storeDir + File.separator + wiseSaying.getId() + JSON;
+
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
             bw.write(json);
         }
+
+        return wiseSaying;
+    }
+
+    @Override
+    public WiseSaying update(final int id, final WiseSayingReq param) throws IOException {
+        if (id < 0 || !map.containsKey(id)) {
+            throw new GlobalException(INVALID_ID);
+        }
+
+        WiseSaying wiseSaying = WiseSaying.of(id, param.getAuthor(), param.getContent());
+        map.put(id, wiseSaying);
+
+        String json = WiseSayingHandler.toJson(wiseSaying);
+        String filePath = storeDir + File.separator + wiseSaying.getId() + JSON;
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+            bw.write(json);
+        }
+
+        return wiseSaying;
     }
 
     @Override
     public void buildData(final String param) throws IOException {
-        String filePath = STORE_DIR + File.separator + DATA + Ext.JSON;
+        String filePath = storeDir + File.separator + DATA + JSON;
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
             bw.write(param);
         }
@@ -65,11 +105,11 @@ public class WiseSayingRepositoryImpl implements WiseSayingRepository {
     }
 
     @Override
-    public Map<Integer, WiseSaying> loadAll(final Map<Integer, WiseSaying> map) throws IOException {
-        try (Stream<Path> paths = Files.walk(Paths.get(STORE_DIR))) {
+    public Map<Integer, WiseSaying> loadAll() throws IOException {
+        try (Stream<Path> paths = Files.walk(Paths.get(storeDir))) {
             paths.filter(Files::isRegularFile)
-                    .filter(path -> !path.toString().endsWith(DATA + Ext.JSON))
-                    .filter(path -> path.toString().endsWith(Ext.JSON))
+                    .filter(path -> !path.toString().endsWith(DATA + JSON))
+                    .filter(path -> path.toString().endsWith(JSON))
                     .forEach(path -> {
                         try {
                             WiseSaying wiseSaying = loadFromJson(path.toString());
@@ -83,31 +123,39 @@ public class WiseSayingRepositoryImpl implements WiseSayingRepository {
     }
 
     @Override
-    public void saveLastIdTxt(final int id) throws IOException {
-        String filePath = STORE_DIR + File.separator + LAST_ID + Ext.TXT;
+    public void saveLastIdTxt() throws IOException {
+        String filePath = storeDir + File.separator + LAST_ID + TXT;
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
-            bw.write(String.valueOf(id));
+            bw.write(String.valueOf(currentId));
         }
     }
 
     @Override
     public boolean hasLastId() {
-        String filePath = STORE_DIR + File.separator + LAST_ID + Ext.TXT;
+        String filePath = storeDir + File.separator + LAST_ID + TXT;
         return new File(filePath).exists();
     }
 
     @Override
-    public int loadLastId() throws IOException {
-        String filePath = STORE_DIR + File.separator + LAST_ID + Ext.TXT;
+    public int loadLastId() {
+        String filePath = storeDir + File.separator + LAST_ID + TXT;
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             return Integer.parseInt(br.readLine());
+        } catch (IOException e) {
+//            e.printStackTrace();
+            return 1;
         }
     }
 
     @Override
     public void deleteJson(final int id) throws IOException {
-        Path path = Paths.get(STORE_DIR + File.separator + id + Ext.JSON);
+        if (id < 0 || !map.containsKey(id)) {
+            throw new GlobalException(INVALID_ID);
+        }
+
+        Path path = Paths.get(storeDir + File.separator + id + JSON);
         Files.delete(path);
+        map.remove(id);
     }
 
 }

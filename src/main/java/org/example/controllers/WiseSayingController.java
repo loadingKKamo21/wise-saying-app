@@ -8,21 +8,19 @@ import java.util.Map;
 import org.example.dto.WiseSayingPaging;
 import org.example.dto.WiseSayingReq;
 import org.example.entities.WiseSaying;
-import org.example.proxy.LoggingProxy;
 import org.example.services.WiseSayingService;
-import org.example.services.WiseSayingServiceImpl;
 
 public class WiseSayingController {
 
-    private final BufferedWriter bw;
+    private final WiseSayingService service;
     private final BufferedReader br;
+    private final BufferedWriter bw;
 
-    public WiseSayingController(final BufferedWriter bw, final BufferedReader br) {
-        this.bw = bw;
+    public WiseSayingController(final WiseSayingService service, final BufferedReader br, final BufferedWriter bw) {
+        this.service = service;
         this.br = br;
+        this.bw = bw;
     }
-
-    private WiseSayingService service = LoggingProxy.createProxy(new WiseSayingServiceImpl(), WiseSayingService.class);
 
     public void makeDirectory() {
         service.makeDirectory();
@@ -137,9 +135,10 @@ public class WiseSayingController {
                 inputEmptyCheck(author);
             } while (author.trim().isEmpty());
 
-            service.deleteWiseSaying(id);
             WiseSayingReq req = WiseSayingReq.of(author, content);
             service.updateWiseSaying(id, req);
+            bw.write(id + "번 명언이 수정되었습니다.");
+            bw.newLine();
         } else {
             bw.write(id + "번 명언은 존재하지 않습니다.");
             bw.newLine();

@@ -24,6 +24,6 @@ public interface WiseSayingService {
 
     void deleteWiseSaying(int id) throws IOException;
 
-    WiseSayingPaging getPaging(String keywordType, String keyword, int page);
+    WiseSayingPaging getPaging(String keywordType, String keyword, int page) throws IOException;
 
 }
