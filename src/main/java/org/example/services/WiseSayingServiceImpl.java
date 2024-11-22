@@ -2,7 +2,6 @@ package org.example.services;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,21 +9,18 @@ import java.util.stream.Collectors;
 import org.example.dto.WiseSayingPaging;
 import org.example.dto.WiseSayingReq;
 import org.example.entities.WiseSaying;
-import org.example.proxy.LoggingProxy;
 import org.example.repositories.WiseSayingRepository;
-import org.example.repositories.WiseSayingRepositoryImpl;
 import org.example.utils.WiseSayingHandler;
 
 public class WiseSayingServiceImpl implements WiseSayingService {
 
     private static final int PAGE_SIZE = 5;
 
-    private static Map<Integer, WiseSaying> map = new LinkedHashMap<>();
+    private final WiseSayingRepository repository;
 
-    private int currentId = 1;
-
-    private WiseSayingRepository repository = LoggingProxy.createProxy(new WiseSayingRepositoryImpl(),
-            WiseSayingRepository.class);
+    public WiseSayingServiceImpl(final WiseSayingRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public void makeDirectory() {
@@ -33,53 +29,43 @@ public class WiseSayingServiceImpl implements WiseSayingService {
 
     @Override
     public int saveWiseSaying(final WiseSayingReq dto) throws IOException {
-        WiseSaying wiseSaying = WiseSaying.of(currentId++, dto.getAuthor(), dto.getContent());
-        map.put(wiseSaying.getId(), wiseSaying);
-        repository.saveToJson(wiseSaying);
-        return wiseSaying.getId();
+        return repository.saveToJson(dto).getId();
     }
 
     @Override
     public int updateWiseSaying(final int id, final WiseSayingReq dto) throws IOException {
-        WiseSaying wiseSaying = WiseSaying.of(id, dto.getAuthor(), dto.getContent());
-        map.put(wiseSaying.getId(), wiseSaying);
-        repository.saveToJson(wiseSaying);
-        return wiseSaying.getId();
+        return repository.update(id, dto).getId();
     }
 
     @Override
     public void buildData() throws IOException {
-        String buildData = WiseSayingHandler.buildData(map);
+        String buildData = WiseSayingHandler.buildData(repository.loadAll());
         repository.buildData(buildData);
     }
 
     @Override
     public Map<Integer, WiseSaying> loadAll() throws IOException {
-        return repository.loadAll(map);
+        return repository.loadAll();
     }
 
     @Override
     public void saveLastId() throws IOException {
-        repository.saveLastIdTxt(currentId);
+        repository.saveLastIdTxt();
     }
 
     @Override
-    public int loadLastId() throws IOException {
-        if (repository.hasLastId()) {
-            currentId = Math.max(map.size(), repository.loadLastId());
-        }
-        return currentId;
+    public int loadLastId() {
+        return repository.loadLastId();
     }
 
     @Override
     public void deleteWiseSaying(final int id) throws IOException {
-        map.remove(id);
         repository.deleteJson(id);
     }
 
     @Override
-    public WiseSayingPaging getPaging(final String keywordType, final String keyword, int page) {
-        List<Entry<Integer, WiseSaying>> entries = new ArrayList<>(map.entrySet());
+    public WiseSayingPaging getPaging(final String keywordType, final String keyword, int page) throws IOException {
+        List<Entry<Integer, WiseSaying>> entries = new ArrayList<>(repository.loadAll().entrySet());
         List<Entry<Integer, WiseSaying>> filteredEntries = entries.stream().filter(e -> {
             if (keyword == null) {
                 return true;
