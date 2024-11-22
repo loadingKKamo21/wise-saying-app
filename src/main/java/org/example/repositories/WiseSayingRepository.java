@@ -17,6 +17,8 @@ public interface WiseSayingRepository {
 
     WiseSaying loadFromJson(String filePath) throws IOException;
 
+    WiseSaying loadById(int id) throws IOException;
+
     Map<Integer, WiseSaying> loadAll() throws IOException;
 
     void saveLastIdTxt() throws IOException;
@@ -25,6 +27,6 @@ public interface WiseSayingRepository {
 
     int loadLastId();
 
-    void deleteJson(int id) throws IOException;
+    boolean deleteJson(int id) throws IOException;
 
 }
